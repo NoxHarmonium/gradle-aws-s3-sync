@@ -8,7 +8,8 @@ import org.jets3t.service.impl.rest.httpclient.RestS3Service
 import org.jets3t.service.security.AWSCredentials
 import org.jets3t.service.Jets3tProperties
 import org.jets3t.service.utils.Mimetypes
-
+import org.jets3t.service.model.cloudfront.Invalidation
+import org.jets3t.service.CloudFrontService
 /**
  * Main task class for the plugin
  *
@@ -45,6 +46,10 @@ class S3Sync extends DefaultTask {
     ACL acl = ACL.Private
     
     String action = 'UP'
+
+    String cloudFrontIDForInvalidation
+
+    String[] invalidationPath = ["*"]
 
     ReportLevel reportLevel = ReportLevel.All
 
@@ -87,6 +92,7 @@ class S3Sync extends DefaultTask {
                 isMoveEnabled, isBatchMode, isGzipEnabled, isEncryptionEnabled,
                 reportLevel.level, jets3tProperties);
 
+        boolean success = false
         if (action == 'UP'){
             final useMD5 = jets3tProperties.getBoolProperty("filecomparer.use-md5-files", false);
             if (useMD5) {
@@ -98,6 +104,7 @@ class S3Sync extends DefaultTask {
                         action,
                         jets3tProperties.getStringProperty("password", null), aclString,
                         "S3");
+                success = true;
             } else {
                 logger.warn("No files found in given source directory '${sourceDir}'.")
             }
@@ -109,9 +116,22 @@ class S3Sync extends DefaultTask {
                         action,
                         jets3tProperties.getStringProperty("password", null), aclString,
                         "S3");
+            success = true;
         }
         else{
             logger.error("unkown action '${action}'")
+        }
+
+        if (success && cloudFrontIDForInvalidation?.trim()) {
+            logger.info("Invalidating distribution '${cloudFrontIDForInvalidation}''")
+            // From http://jets3t.s3.amazonaws.com/toolkit/code-samples.html#cloudfront-invalidation
+            CloudFrontService cloudFrontService = new CloudFrontService(awsCredentials);
+            Invalidation invalidation = cloudFrontService.invalidateObjects(
+                cloudFrontIDForInvalidation,
+                invalidationPath,
+                "" + System.currentTimeMillis() // Caller reference - a unique string value
+            );
+            System.out.println(invalidation);
         }
 
     }

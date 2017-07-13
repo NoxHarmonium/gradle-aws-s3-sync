@@ -172,6 +172,16 @@ task deploy(type: S3Sync){
         <td>Either 'UP' for uploading into S3 or 'DOWN' for downloading from S3.</td>
         <td>UP</td>
     </tr>
+    <tr>
+        <td>cloudFrontIDForInvalidation</td>
+        <td>The ID of the CloudFront distribution you want to invalidate after a successful sync. If empty or null it is disabled.</td>
+        <td>null</td>
+    </tr>
+    <tr>
+        <td>invalidationPath</td>
+        <td>An array of paths to invalidate if cloudFrontIDForInvalidation is specified.</td>
+        <td>["*"]</td>
+    </tr>
 
 </table>
 
