@@ -1,3 +1,6 @@
+*This is a fork that allows you to invalidate a CF distribution once the S3 bucket is synced.*
+I might raise a PR for it at some point.
+
 [![Build Status](https://travis-ci.org/literalice/gradle-aws-s3-sync.svg?branch=master)](https://travis-ci.org/literalice/gradle-aws-s3-sync)
 
 This is the gradle task for synchronizing a local directory with a AWS S3 bucket and vice-versa.
